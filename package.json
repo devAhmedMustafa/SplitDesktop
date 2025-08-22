@@ -14,9 +14,11 @@
   "license": "MIT",
   "dependencies": {
     "@fabianlars/tauri-plugin-oauth": "^2.0.0",
-    "@tauri-apps/api": "^2",
+    "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-shell": "^2.3.0",
     "axios": "^1.11.0",
+    "firebase": "^12.1.0",
     "svelte-spa-router": "^4.0.1"
   },
   "devDependencies": {

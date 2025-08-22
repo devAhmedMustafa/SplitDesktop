@@ -1,60 +1,66 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import api from '../utils/api';
-    import AuthContext from './AuthContext';
-    import type IUser from './IUser';
-    import { goto } from '$app/navigation';
+  import { auth, signInWithGoogle, signOutGoogle } from './firebase';
+  import api from '$lib/utils/api';
+  import { onAuthStateChanged, type User } from 'firebase/auth';
 
-  const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID!;
+  let user: User | null = null;
+  let isCheckingAuth = true;
 
-  let buttonEl: HTMLDivElement;
+  function handleLogin() {
+    // Call the function directly and use .then() for handling the promise
+    signInWithGoogle()
+      .then(result => {
+        if (result) {
+          console.log("ID Token:", result.token);
+          // You can handle the backend call here
+          api.post('/auth/google-login', { token: result.token })
+            .then(res => {
+              console.log("User authenticated:", res.data);
+            })
+            .catch(apiErr => {
+              console.error("API call failed:", apiErr);
+              alert("Backend authentication failed: " + apiErr.message);
+            });
+        }
+      })
+      .catch(err => {
+        if (err.code === "auth/popup-blocked") {
+          console.error("Popup blocked by browser.");
+          alert("Popup blocked. Please enable popups for this site and try again.");
+        } else {
+          console.error("Login failed:", err);
+          alert("Login failed: " + err.message);
+        }
+      });
+  }
 
-  async function handleGoogleSignInCallback(response: { credential: string }) {
-
-    const res = await api.post('/auth/google-login', {
-      token: response.credential
-    });
-
-    const authContext = AuthContext.getInstance();
-
-    const data = res.data;
-
-    const user : IUser = {
-      id: data.id,
-      email: data.email,
-    }
-
-    authContext.login(user, data.token);
-    goto('/');
+  async function handleLogout() {
+    await signOutGoogle();
   }
 
   onMount(() => {
-    
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.async = true;
-    s.defer = true;
-    s.onload = () => {
-      // @ts-ignore - global from GIS
-      google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: handleGoogleSignInCallback,
-        ux_mode: 'redirect',
-        login_url: "http://localhost:1420/auth"
-      });
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      user = authUser;
+      isCheckingAuth = false;
+      if (user) {
+        console.log("User is logged in:", user.displayName);
+      } else {
+        console.log("No user is logged in.");
+      }
+    });
 
-      // @ts-ignore
-      google.accounts.id.renderButton(buttonEl, {
-        type: 'standard', size: 'large', shape: 'pill', theme: 'outline'
-      });
-
-      // Optional One Tap
-      // @ts-ignore
-      google.accounts.id.prompt();
-    };
-    document.head.appendChild(s);
+    return () => unsubscribe();
   });
 </script>
 
-<!-- svelte-ignore element_invalid_self_closing_tag -->
-<div bind:this={buttonEl} />
+---
+
+{#if isCheckingAuth}
+  <p>Checking authentication status...</p>
+{:else if user}
+  <p>Welcome {user.displayName}</p>
+  <button on:click={handleLogout}>Sign Out</button>
+{:else}
+  <button on:click={handleLogin}>Sign in with Google</button>
+{/if}
