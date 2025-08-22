@@ -1,14 +1,36 @@
 <script lang="ts">
 
-    import GoogleSignIn from "$lib/auth/GoogleSignIn.svelte";
+
+    import { writable } from "svelte/store";
+    import SignupForm from "$lib/auth/SignupForm.svelte";
+    import LoginForm from "$lib/auth/LoginForm.svelte";
+
+    const mode = writable<'login' | 'signup'>('login');
 
 </script>
 
 
+
 <div class="auth-bg">
     <div class="auth-card">
-        <h1>Sign in to Your Account</h1>
-        <GoogleSignIn />
+            <h1>{$mode === 'signup' ? 'Create an Account' : 'Sign in to Your Account'}</h1>
+            <p class="subtitle">{$mode === 'signup' ? 'Sign up to get started' : 'Access your dashboard securely'}</p>
+
+            {#if $mode === 'signup'}
+                <SignupForm />
+            {:else}
+                <LoginForm />
+            {/if}
+
+            <div class="switch-mode">
+                {#if $mode === 'signup'}
+                    Already have an account?
+                    <button on:click|preventDefault={() => mode.set('login')}>Sign in</button>
+                {:else}
+                    Don't have an account?
+                    <button on:click|preventDefault={() => mode.set('signup')}>Sign up</button>
+                {/if}
+            </div>
     </div>
 </div>
 
@@ -40,5 +62,28 @@
         margin: 0 0 0.5rem 0;
         color: #1a202c;
         letter-spacing: -1px;
+    }
+    .subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .switch-mode {
+        margin-top: 1rem;
+        font-size: 1rem;
+        color: #64748b;
+        text-align: center;
+    }
+    .switch-mode button {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 0.3em;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .switch-mode button:hover {
+        color: #1e40af;
     }
 </style>
