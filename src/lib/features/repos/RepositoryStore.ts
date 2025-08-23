@@ -1,7 +1,12 @@
 import { get, writable } from "svelte/store";
 import { invoke } from "@tauri-apps/api/core";
+import { hashString } from "$lib/utils/cipher/Hash";
 
-const _store = writable<string[]>(JSON.parse(localStorage.getItem('repositories') || '[]'));
+
+const _store = writable<{ [key: string]: string }>(
+    localStorage.getItem('repositories') ? 
+    JSON.parse(localStorage.getItem('repositories')!) : {}
+);
 
 export default class RepositoryStore {
 
@@ -16,28 +21,43 @@ export default class RepositoryStore {
         return this.instance;
     }
 
-    public createRepository(repo: string): void {
+
+    public async createRepository(repo: string): Promise<void> {
         try {
-            invoke('scm_init', { rootPath: repo }).then(() => {
-                this.addRepository(repo);
-            });
+            await invoke('scm_init', { rootPath: repo });
+            await this.addRepository(repo);
         } catch (error) {
             console.error("Failed to create repository:", error);
         }
     }
 
-    public addRepository(repo: string): void {
-        _store.update(repos => [...repos, repo]);
+    public async addRepository(repoPath: string): Promise<void> {
+        const repoId = await hashString(repoPath);
+        _store.update(repos => {
+            repos[repoId] = repoPath;
+            return repos;
+        });
         this.save();
     }
 
-    public removeRepository(repo: string): void {
-        _store.update(repos => repos.filter(r => r !== repo));
+    public removeRepository(repoId: string): void {
+        _store.update(repos => {
+            delete repos[repoId];
+            return repos;
+        });
         this.save();
+    }
+
+    public getRepositoryPath(repoId: string): string | undefined {
+        return get(_store)[repoId];
+    }
+
+    public listRepositoriesIds(): string[] {
+        return Object.keys(get(_store));
     }
 
     public listRepositories(): string[] {
-        return get(_store);
+        return Object.values(get(_store));
     }
 
     private save(): void {

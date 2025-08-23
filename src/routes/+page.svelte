@@ -23,8 +23,8 @@
   {#if repoStore.listRepositories().length > 0}
   <h1>Repositories</h1>
   <ul>
-    {#each repoStore.listRepositories() as repo}
-      <li>{repo}</li>
+    {#each repoStore.listRepositoriesIds() as repo}
+      <li><a href={`/repo/${repo}`}>{repoStore.getRepositoryPath(repo)}</a></li>
     {/each}
   </ul>
   {:else}
