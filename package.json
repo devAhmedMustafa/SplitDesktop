@@ -15,6 +15,7 @@
   "dependencies": {
     "@fabianlars/tauri-plugin-oauth": "^2.0.0",
     "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-dialog": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-shell": "^2.3.0",
     "axios": "^1.11.0",

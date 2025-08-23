@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { auth, signInWithGoogle, signOutGoogle } from './firebase';
-  import api from '$lib/utils/api';
+  import api from '$lib/utils/apis/api';
   import { onAuthStateChanged, type User } from 'firebase/auth';
 
   let user: User | null = null;

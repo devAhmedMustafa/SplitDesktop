@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import api from "$lib/utils/api";
+    import api from "$lib/utils/apis/api";
     import AuthContext from "./AuthContext";
     import type IUser from "./IUser";
     let username = '';

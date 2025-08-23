@@ -1,22 +1,27 @@
 import { get, writable } from "svelte/store";
 import { invoke } from "@tauri-apps/api/core";
 
-const _store = writable<string[]>([]);
+const _store = writable<string[]>(JSON.parse(localStorage.getItem('repositories') || '[]'));
 
 export default class RepositoryStore {
+
+    private static instance: RepositoryStore | null = null;
 
     private constructor() {}
 
     public static getInstance(): RepositoryStore {
-        return new RepositoryStore();
+        if (!this.instance) {
+            this.instance = new RepositoryStore();
+        }
+        return this.instance;
     }
 
     public createRepository(repo: string): void {
         try {
-            invoke('scm_init', { repo })
-            this.addRepository(repo);
-        }
-        catch (error) {
+            invoke('scm_init', { rootPath: repo }).then(() => {
+                this.addRepository(repo);
+            });
+        } catch (error) {
             console.error("Failed to create repository:", error);
         }
     }

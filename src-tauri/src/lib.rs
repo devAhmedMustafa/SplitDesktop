@@ -39,6 +39,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_oauth::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![greet, scm_init, scm_add, scm_commit, scm_checkout])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
