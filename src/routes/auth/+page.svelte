@@ -2,8 +2,8 @@
 
 
     import { writable } from "svelte/store";
-    import SignupForm from "$lib/auth/SignupForm.svelte";
-    import LoginForm from "$lib/auth/LoginForm.svelte";
+    import SignupForm from "$lib/features/auth/SignupForm.svelte";
+    import LoginForm from "$lib/features/auth/LoginForm.svelte";
 
     const mode = writable<'login' | 'signup'>('login');
 

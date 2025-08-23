@@ -1,4 +1,4 @@
-import type IUser from "$lib/auth/IUser";
+import type IUser from "$lib/features/auth/IUser";
 import { writable } from "svelte/store";
 
 const _user = writable<IUser | null>(null);
