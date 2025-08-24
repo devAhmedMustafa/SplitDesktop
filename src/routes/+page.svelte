@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import AuthContext from "$lib/features/auth/AuthContext";
-  import RepositoryStore from "$lib/features/repos/RepositoryStore";
+  import RepositoryStore from "$lib/features/repos/store/RepositoryStore";
   import SelectPath from "$lib/utils/ui/SelectPath.svelte";
   import { onMount } from "svelte";
 

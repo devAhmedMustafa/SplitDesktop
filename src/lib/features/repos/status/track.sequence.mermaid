@@ -1,0 +1,12 @@
+sequenceDiagram
+    actor User
+    participant RP as Repository Page
+    participant EngineAPI
+    participant Engine
+
+    User->>RP: OpenPage/Refresh
+    RP->>EngineAPI: getRepoStatus(repoPath)
+    EngineAPI->>+Engine: getRepoStatus(repoPath)
+    Engine-->>-EngineAPI: repoStatus
+    EngineAPI-->>RP: repoStatus
+    RP->>RP: Update UI with repoStatus

@@ -1,0 +1,15 @@
+classDiagram
+
+    class EngineAPI {
+        + getRepoStatus(repoPath: string): Promise<string>
+    }
+
+    class RepoStatusStringParser {
+        + parse(statusOutput: string): RepoStatus
+    }
+
+    class RepoStatus {
+        + modifiedFiles: string[]
+        + untrackedFiles: string[]
+        + deletedFiles: string[]
+    }

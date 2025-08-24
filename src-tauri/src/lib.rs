@@ -5,6 +5,7 @@ fn greet(name: &str) -> String {
 }
 
 use tauri_plugin_oauth;
+use std::os;
 
 #[tauri::command]
 fn scm_init(root_path: &str) {
@@ -34,13 +35,23 @@ fn scm_checkout(root_path: &str, commit_id: &str) {
     unsafe { checkout(c_root_path.as_ptr(), c_commit_id.as_ptr()) };
 }
 
+#[tauri::command]
+fn scm_status(root_path: &str) -> String {
+    let c_root_path = std::ffi::CString::new(root_path).unwrap();
+    unsafe {
+        let status_ptr = rstatus(c_root_path.as_ptr());
+        let c_str = std::ffi::CStr::from_ptr(status_ptr);
+        c_str.to_string_lossy().into_owned()
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet, scm_init, scm_add, scm_commit, scm_checkout])
+        .invoke_handler(tauri::generate_handler![greet, scm_init, scm_add, scm_commit, scm_checkout, scm_status])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -51,4 +62,5 @@ extern "C" {
     fn add(rootPath: *const i8, filePath: *const i8);
     fn commit(rootPath: *const i8, message: *const i8, author: *const i8);
     fn checkout(rootPath: *const i8, commitId: *const i8);
+    fn rstatus(rootPath: *const i8) -> *const i8;
 }

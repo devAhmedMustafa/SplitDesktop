@@ -1,0 +1,22 @@
+---
+title: Repository Creation Sequence
+---
+
+sequenceDiagram
+
+    actor User
+    participant HomePage
+    participant RepositoryStore
+    participant Engine
+    participant Disk
+
+    User->>HomePage: CreateRepository
+    HomePage-->>+User: Ask for directory path
+    User->>-HomePage: Provide directory path
+    HomePage->>+RepositoryStore: createRepository(path)
+    RepositoryStore->>Engine: scm_init(path)
+    Engine-->>RepositoryStore: confirmInit
+    RepositoryStore->>Disk: saveStoreFile
+    Disk-->>RepositoryStore: confirmSave
+    RepositoryStore-->>-HomePage: confirmCreate
+    HomePage-->>User: Repository Created

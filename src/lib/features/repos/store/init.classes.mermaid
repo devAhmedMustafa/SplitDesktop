@@ -1,0 +1,12 @@
+classDiagram
+
+    class RepositoryStore {
+        - savePath : string
+        
+        - save() void
+        - Map~string, string~ repos;
+
+        + getRepoPath(repoId: string) string
+        + listRepositories() string[]
+        + removeRepository(repo: string) void
+    } 
