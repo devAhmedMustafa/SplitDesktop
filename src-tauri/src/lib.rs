@@ -5,7 +5,6 @@ fn greet(name: &str) -> String {
 }
 
 use tauri_plugin_oauth;
-use std::os;
 
 #[tauri::command]
 fn scm_init(root_path: &str) {

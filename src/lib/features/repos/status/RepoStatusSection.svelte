@@ -6,6 +6,7 @@
     import RepoStatusStringParser from "./RepoStatusStringParser";
     import EngineAPI from "$lib/core/EngineAPI";
     import { onMount } from "svelte";
+    import CommitHandler from "../commit/CommitHandler";
 
     let status : RepoStatus | null = null;
 
@@ -14,6 +15,15 @@
             status = repoStatus ? RepoStatusStringParser.parse(repoStatus) : null;
         });
     });
+
+    function toggleFileSelection(file: string, selection: boolean) {
+        const commitHandler = CommitHandler.getInstance();
+        if (selection) {
+            commitHandler.addFileToStage(file);
+        } else {
+            commitHandler.removeFileFromStage(file);
+        }
+    }
 
 </script>
 
@@ -30,13 +40,16 @@
 <ul>
     {#if status}
         {#each status.modifiedFiles as file}
-            <li>Modified: {file}</li>
+            <input type="checkbox" id={file} on:change={e => toggleFileSelection(file, (e.target as HTMLInputElement).checked)} />
+            <label for={file}>Modified: {file}</label>
         {/each}
         {#each status.deletedFiles as file}
-            <li>Removed: {file}</li>
+            <input type="checkbox" id={file} on:change={e => toggleFileSelection(file, (e.target as HTMLInputElement).checked)} />
+            <label for={file}>Removed: {file}</label>
         {/each}
         {#each status.untrackedFiles as file}
-            <li>Untracked: {file}</li>
+            <input type="checkbox" id={file} on:change={e => toggleFileSelection(file, (e.target as HTMLInputElement).checked)} />
+            <label for={file}>Untracked: {file}</label>
         {/each}
     {:else}
         <li>Loading...</li>
