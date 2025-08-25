@@ -1,6 +1,7 @@
 import RepoStatusStringParser from "./RepoStatusStringParser";
 
 export default class RepoStatus {
+
     constructor(
         public modifiedFiles: string[],
         public untrackedFiles: string[],

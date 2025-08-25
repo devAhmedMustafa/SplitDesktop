@@ -15,13 +15,15 @@
   "license": "MIT",
   "dependencies": {
     "@fabianlars/tauri-plugin-oauth": "^2.0.0",
+    "@tailwindcss/vite": "^4.1.12",
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-dialog": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-shell": "^2.3.0",
     "axios": "^1.11.0",
     "firebase": "^12.1.0",
-    "svelte-spa-router": "^4.0.1"
+    "svelte-spa-router": "^4.0.1",
+    "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
