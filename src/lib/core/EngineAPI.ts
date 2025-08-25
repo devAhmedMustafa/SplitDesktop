@@ -21,4 +21,8 @@ export default class EngineAPI {
             await this.stageFile(repoPath, filePath);
         }
     }
+
+    static async commit(repoPath: string, message: string, author: string): Promise<void> {
+        await invoke("scm_commit", { rootPath: repoPath, message: message, author: author });
+    }
 }

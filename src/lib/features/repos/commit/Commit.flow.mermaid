@@ -1,0 +1,23 @@
+sequenceDiagram
+    actor User
+    participant CommitButton
+    participant MessageBox
+    participant CommitHandler
+    participant AuthContext
+    participant EngineAPI
+
+    User->>CommitButton: Click "Commit"
+    CommitButton->>CommitHandler: Trigger commit process
+    CommitHandler->>AuthContext: Check authentication
+    AuthContext-->>CommitHandler: Return auth status
+    alt Authenticated
+        CommitHandler->>MessageBox: Check commit message validity
+        alt Valid Message
+            CommitHandler->>EngineAPI: commit(message, author)
+        else Invalid Message
+            CommitHandler->>User: Show error message
+        end
+    else Not Authenticated
+        CommitHandler->>User: Prompt user to log in
+    end
+

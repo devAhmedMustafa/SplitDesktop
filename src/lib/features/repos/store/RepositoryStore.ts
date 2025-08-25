@@ -40,6 +40,10 @@ export default class RepositoryStore {
         this.save();
     }
 
+    public hasRepository(repoId: string): boolean {
+        return repoId in get(_store);
+    }
+
     public removeRepository(repoId: string): void {
         _store.update(repos => {
             delete repos[repoId];
