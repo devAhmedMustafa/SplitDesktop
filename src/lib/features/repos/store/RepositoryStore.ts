@@ -52,6 +52,17 @@ export default class RepositoryStore {
         this.save();
     }
 
+    public updateRepoId(repoId: string, newRepoId: string): void {
+        _store.update(repos => {
+            if (repoId in repos) {
+                repos[newRepoId] = repos[repoId];
+                delete repos[repoId];
+            }
+            return repos;
+        });
+        this.save();
+    }
+
     public getRepositoryPath(repoId: string): string | undefined {
         return get(_store)[repoId];
     }

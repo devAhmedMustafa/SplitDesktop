@@ -1,0 +1,13 @@
+sequenceDiagram
+    actor User
+    participant PUB_BTN as Publish Button
+    participant Publisher as Publish Invoker
+    participant Server
+    participant RepositoryStore
+
+    User->>PUB_BTN: Clicks Publish
+    PUB_BTN->>Publisher: publish(repoPath)
+    Publisher->>+Server: POST /publish { repo_name, token }
+    Server-->>-Publisher: Acknowledgment
+    Publisher->>RepositoryStore: updateRepoId(repoId, newRepoId)
+    

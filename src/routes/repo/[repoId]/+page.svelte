@@ -1,6 +1,8 @@
 <script lang="ts">
 
     import {page} from "$app/stores";
+    import PublishButton from "$lib/features/remote/link/PublishButton.svelte";
+    import Publisher from "$lib/features/remote/link/Publisher";
     import CommitSection from "$lib/features/repos/commit/CommitSection.svelte";
     import RepoStatusSection from "$lib/features/repos/status/RepoStatusSection.svelte";
     import RepositoryStore from "$lib/features/repos/store/RepositoryStore";
@@ -8,8 +10,9 @@
     import { onMount } from "svelte";
 
     $: repoId = $page.params.repoId;
+    $: isPublished = false;
 
-    onMount(()=>{
+    onMount(async ()=>{
 
         if (!repoId){
             throw new Error("repoId is undefined");
@@ -20,6 +23,8 @@
         }
 
         RepositoryContext.getInstance().setRepository(repoId!);
+        
+        isPublished = await Publisher.isPublished(repoId);
     })
 
 </script>
@@ -31,4 +36,8 @@
     <RepoStatusSection repoPath={RepositoryStore.getInstance().getRepositoryPath(repoId!)} />
 
     <CommitSection/>
+
+    {#if !isPublished}
+        <PublishButton/>
+    {/if}
 </main>
