@@ -1,0 +1,17 @@
+sequenceDiagram
+    actor User
+    participant UI
+    participant RemoteSync
+    participant EngineApi
+    participant Server
+
+    User->>UI: Push changes
+    UI->>RemoteSync: push()
+    RemoteSync->>+Server: /remote/push/negotiate/repo_id
+    Server-->>-RemoteSync: Server response {commit_id}
+    RemoteSync->>+EngineApi: negotiate(repoPath, commit_id)
+    EngineApi-->>-RemoteSync: return filesToSync
+    RemoteSync->>+Server: /remote/push/upload {repo_id, filepathes, files}
+    Server-->>-RemoteSync: Upload success
+    RemoteSync->>UI: Push successful
+    UI->>User: Show success message
