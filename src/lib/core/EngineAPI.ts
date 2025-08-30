@@ -25,4 +25,9 @@ export default class EngineAPI {
     static async commit(repoPath: string, message: string, author: string): Promise<void> {
         await invoke("scm_commit", { rootPath: repoPath, message: message, author: author });
     }
+
+    static async negotiate(repoPath: string, requestedCommitId: string): Promise<string> {
+        const response: string = await invoke("scm_negotiate", { rootPath: repoPath, requestedCommitId: requestedCommitId });
+        return response;
+    }
 }

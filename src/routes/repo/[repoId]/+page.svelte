@@ -3,6 +3,7 @@
     import {page} from "$app/stores";
     import PublishButton from "$lib/features/remote/link/PublishButton.svelte";
     import Publisher from "$lib/features/remote/link/Publisher";
+    import PushButton from "$lib/features/remote/sync/PushButton.svelte";
     import CommitSection from "$lib/features/repos/commit/CommitSection.svelte";
     import RepoStatusSection from "$lib/features/repos/status/RepoStatusSection.svelte";
     import RepositoryStore from "$lib/features/repos/store/RepositoryStore";
@@ -39,5 +40,9 @@
 
     {#if !isPublished}
         <PublishButton/>
+    {/if}
+
+    {#if isPublished}
+        <PushButton/>
     {/if}
 </main>

@@ -1,16 +1,14 @@
 fn main() {
-
     if cfg!(target_os = "windows") {
-
         println!("cargo:rustc-link-arg=/NODEFAULTLIB:LIBCMTD");
         println!("cargo:rustc-link-lib=msvcrtd");
-    
+
         println!("cargo:rustc-link-search=native=static");
         println!("cargo:rustc-link-lib=static=scm_bindings");
-    
+
         println!("cargo:rustc-link-search=native=static/splitscm");
         println!("cargo:rustc-link-lib=static=scm_lib");
-    
+
         println!("cargo:rustc-link-search=native=static/vcdiff");
         println!("cargo:rustc-link-lib=static=vcdiff");
         println!("cargo:rustc-link-lib=static=vcdcom");
@@ -23,7 +21,7 @@ fn main() {
         println!("cargo:rustc-link-lib=stdc++fs");
         println!("cargo:rustc-link-search=native=static");
         println!("cargo:rustc-link-lib=static=scm_bindings");
-    
+
         println!("cargo:rustc-link-search=native=static/splitscm");
         println!("cargo:rustc-link-lib=static=scm_lib");
 
@@ -32,7 +30,6 @@ fn main() {
         println!("cargo:rustc-link-lib=static=vcddec");
         println!("cargo:rustc-link-lib=static=vcdenc");
     }
-
 
     tauri_build::build()
 }

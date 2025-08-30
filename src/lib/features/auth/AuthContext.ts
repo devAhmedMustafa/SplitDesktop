@@ -43,7 +43,7 @@ export default class AuthContext {
         _user.set(user);
         _token.set(token);
         localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', `Bearer ${token}`);
     }
 
     public logout(): void {

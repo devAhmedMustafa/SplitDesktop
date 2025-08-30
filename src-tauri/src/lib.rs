@@ -44,22 +44,43 @@ fn scm_status(root_path: &str) -> String {
     }
 }
 
+#[tauri::command]
+fn scm_negotiate(root_path: &str, requested_commit_id: &str) -> String {
+    let c_root_path = std::ffi::CString::new(root_path).unwrap();
+    let c_requested_commit_id = std::ffi::CString::new(requested_commit_id).unwrap();
+    unsafe {
+        let response_ptr = negotiate(c_root_path.as_ptr(), c_requested_commit_id.as_ptr());
+        let c_str = std::ffi::CStr::from_ptr(response_ptr);
+        c_str.to_string_lossy().into_owned()
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![greet, scm_init, scm_add, scm_commit, scm_checkout, scm_status])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            scm_init,
+            scm_add,
+            scm_commit,
+            scm_checkout,
+            scm_status,
+            scm_negotiate
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-#[link(name="scm_bindings", kind="static")]
+#[link(name = "scm_bindings", kind = "static")]
 extern "C" {
     fn init(rootPath: *const i8);
     fn add(rootPath: *const i8, filePath: *const i8);
     fn commit(rootPath: *const i8, message: *const i8, author: *const i8);
     fn checkout(rootPath: *const i8, commitId: *const i8);
     fn rstatus(rootPath: *const i8) -> *const i8;
+    fn negotiate(rootPath: *const i8, requestedCommitId: *const i8) -> *const i8;
 }
