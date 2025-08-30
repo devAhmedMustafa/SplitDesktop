@@ -3,6 +3,7 @@ sequenceDiagram
     participant UI
     participant RemoteAsync
     participant Server
+    participant Compressor
     participant FileSystem
     participant EngineAPI
     participant RepositoryStore
@@ -12,7 +13,9 @@ sequenceDiagram
     User->>-UI: Select Directory
     UI->>+RemoteAsync: Clone Repository (URL, Directory)
     RemoteAsync->>+Server: /remote/clone {url}
-    Server->>-RemoteAsync: 200 OK + Repository files
+    Server->>-RemoteAsync: 200 OK + Repository compressed file
+    RemoteAsync->>+Compressor: Decompress
+    Compressor->>-RemoteAsync: Decompressed files
     RemoteAsync->>+FileSystem: Write Repository files to Directory
     FileSystem->>-RemoteAsync: Files written
     RemoteAsync->>+EngineAPI: getCommitHistory(Directory)
