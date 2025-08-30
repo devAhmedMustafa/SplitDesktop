@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor User
+    participant UI
+    participant RemoteAsync
+    participant Server
+    participant FileSystem
+    participant EngineAPI
+    participant RepositoryStore
+
+    User->>UI: Clone Repository (URL)
+    UI->>+User: Directory Dialog
+    User->>-UI: Select Directory
+    UI->>+RemoteAsync: Clone Repository (URL, Directory)
+    RemoteAsync->>+Server: /remote/clone {url}
+    Server->>-RemoteAsync: 200 OK + Repository files
+    RemoteAsync->>+FileSystem: Write Repository files to Directory
+    FileSystem->>-RemoteAsync: Files written
+    RemoteAsync->>+EngineAPI: getCommitHistory(Directory)
+    EngineAPI->>-RemoteAsync: CommitHistory[]
+    RemoteAsync->>+EngineAPI: engine.checkout(CommitHistory[last])
+    EngineAPI->>-RemoteAsync: Checkout Success
+    RemoteAsync->>RepositoryStore: addRepository(Directory)
+    RemoteAsync->>-UI: Clone Success
+    UI->>User: Show cloned repository
