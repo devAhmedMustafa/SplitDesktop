@@ -31,6 +31,7 @@ fn scm_commit(root_path: &str, message: &str, author: &str) {
 fn scm_checkout(root_path: &str, commit_id: &str) {
     let c_root_path = std::ffi::CString::new(root_path).unwrap();
     let c_commit_id = std::ffi::CString::new(commit_id).unwrap();
+    println!("{}", c_root_path.to_string_lossy());
     unsafe { checkout(c_root_path.as_ptr(), c_commit_id.as_ptr()) };
 }
 
@@ -40,6 +41,16 @@ fn scm_status(root_path: &str) -> String {
     unsafe {
         let status_ptr = rstatus(c_root_path.as_ptr());
         let c_str = std::ffi::CStr::from_ptr(status_ptr);
+        c_str.to_string_lossy().into_owned()
+    }
+}
+
+#[tauri::command]
+fn scm_history(root_path: &str) -> String {
+    let c_root_path = std::ffi::CString::new(root_path).unwrap();
+    unsafe {
+        let history_ptr = getCommitHistory(c_root_path.as_ptr());
+        let c_str = std::ffi::CStr::from_ptr(history_ptr);
         c_str.to_string_lossy().into_owned()
     }
 }
@@ -55,6 +66,30 @@ fn scm_negotiate(root_path: &str, requested_commit_id: &str) -> String {
     }
 }
 
+#[tauri::command]
+fn unzip_repo(zip_path: String, extract_to: String) -> Result<(), String> {
+    let file = std::fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
+        let outpath = std::path::Path::new(&extract_to).join(file.name());
+
+        if file.is_dir() {
+            std::fs::create_dir_all(&outpath).map_err(|e| e.to_string())?;
+        } else {
+            if let Some(p) = outpath.parent() {
+                std::fs::create_dir_all(&p).map_err(|e| e.to_string())?;
+            }
+            let mut outfile = std::fs::File::create(&outpath).map_err(|e| e.to_string())?;
+            std::io::copy(&mut file, &mut outfile).map_err(|e| e.to_string())?;
+        }
+    }
+
+    Ok(())
+}
+
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -69,7 +104,9 @@ pub fn run() {
             scm_commit,
             scm_checkout,
             scm_status,
-            scm_negotiate
+            scm_history,
+            scm_negotiate,
+            unzip_repo
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -81,6 +118,7 @@ extern "C" {
     fn add(rootPath: *const i8, filePath: *const i8);
     fn commit(rootPath: *const i8, message: *const i8, author: *const i8);
     fn checkout(rootPath: *const i8, commitId: *const i8);
+    fn getCommitHistory(rootPath: *const i8) -> *const i8;
     fn rstatus(rootPath: *const i8) -> *const i8;
     fn negotiate(rootPath: *const i8, requestedCommitId: *const i8) -> *const i8;
 }

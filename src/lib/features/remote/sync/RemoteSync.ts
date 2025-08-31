@@ -1,10 +1,51 @@
 import EngineAPI from "$lib/core/EngineAPI";
 import AuthContext from "$lib/features/auth/AuthContext";
+import RepositoryStore from "$lib/features/repos/store/RepositoryStore";
 import RepositoryContext from "$lib/features/repos/store/RepositroyContext";
 import api from "$lib/utils/apis/api";
-import {readFile} from "@tauri-apps/plugin-fs";
+import {readFile, writeFile, remove} from "@tauri-apps/plugin-fs";
+import type IRemoteRepo from "../IRemoteRepo";
 
 export default class RemoteSync {
+
+    static async clone(repo: IRemoteRepo, directory: string){
+
+        const res = await api.post(`/remote/clone/fetch?repo_url=${repo.url}`, {}, {
+            'responseType': 'arraybuffer'
+        });
+
+        if(res.status !== 200){
+            throw new Error("Failed to clone repository");
+        }
+        
+        const buffer = new Uint8Array(res.data);
+
+        if (buffer.length === 0) {
+            throw new Error("Received empty buffer");
+        }
+
+        await writeFile(`${directory}/repo.zip`, buffer);
+
+        const repoPath = `${directory.replaceAll(/\\/g, "/")}/${repo.url.split("/").pop()}`;
+
+        await EngineAPI.unzip(repoPath, `${directory}/repo.zip`);
+        await remove(`${directory}/repo.zip`);
+
+        const commitHistory = await EngineAPI.getCommitHistory(repoPath);
+        if(commitHistory.length > 0){
+            await EngineAPI.checkout(repoPath, commitHistory[commitHistory.length - 1]);
+        }
+
+        // Save to repository store
+        
+        const repoStore = RepositoryStore.getInstance();
+        if (repoStore.hasRepository(repo.id)){
+            throw new Error("Repository already exists");
+        }
+    
+        repoStore.addRepositoryWithId(repo.id, repoPath);
+
+    }
 
     static async push(){
 

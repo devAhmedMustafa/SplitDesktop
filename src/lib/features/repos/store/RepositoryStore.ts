@@ -63,6 +63,14 @@ export default class RepositoryStore {
         this.save();
     }
 
+    public addRepositoryWithId(repoId: string, repoPath: string): void {
+        _store.update(repos => {
+            repos[repoId] = repoPath;
+            return repos;
+        });
+        this.save();
+    }
+
     public getRepositoryPath(repoId: string): string | undefined {
         return get(_store)[repoId];
     }

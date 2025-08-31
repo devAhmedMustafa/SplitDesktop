@@ -26,8 +26,22 @@ export default class EngineAPI {
         await invoke("scm_commit", { rootPath: repoPath, message: message, author: author });
     }
 
+    static async getCommitHistory(repoPath: string): Promise<string[]> {
+        const historyStr: string = await invoke("scm_history", { rootPath: repoPath });
+        const history: string[] = historyStr.split("\n").filter(line => line.trim() !== "");
+        return history;
+    }
+
+    static async checkout(repoPath: string, commitId: string): Promise<void> {
+        await invoke("scm_checkout", { rootPath: repoPath, commitId: commitId });
+    }
+
     static async negotiate(repoPath: string, requestedCommitId: string): Promise<string> {
         const response: string = await invoke("scm_negotiate", { rootPath: repoPath, requestedCommitId: requestedCommitId });
         return response;
+    }
+
+    static async unzip(repoPath: string, zipFilePath: string): Promise<void> {
+        await invoke("unzip_repo", { zipPath: zipFilePath, extractTo: repoPath });
     }
 }
