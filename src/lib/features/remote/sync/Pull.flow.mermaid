@@ -1,0 +1,26 @@
+sequenceDiagram
+
+    actor User
+    participant UI
+    participant RemoteAsync
+    participant EngineAPI
+    participant Server
+    participant Compressor
+    participant FileSystem
+
+    User ->>UI: Pull Changes
+    UI ->>+RemoteAsync: Pull Changes
+    RemoteAsync->>+EngineAPI: GetCommitHistory(repoPath)
+    EngineAPI->>-RemoteAsync: CommitHistory[]
+    RemoteAsync->>+Server: /remote/pull/{repo_id}?commit{latestCommit}
+    Server-->>-RemoteAsync: 200 OK + Repository compressed file
+    RemoteAsync->>+FileSystem: Save Repository compressed file
+    FileSystem->>-RemoteAsync: File saved
+    RemoteAsync->>+Compressor: Decompress
+    Compressor->>-RemoteAsync: Decompressed files
+    RemoteAsync->>+EngineAPI: GetCommitHistory(repoPath)
+    EngineAPI->>-RemoteAsync: CommitHistory[]
+    RemoteAsync->>+EngineAPI: engine.checkout(repoPath, CommitHistory[last])
+    EngineAPI->>-RemoteAsync: Checkout Success
+    RemoteAsync->>-UI: Pull Success
+    UI->>User: Show pull success

@@ -121,4 +121,49 @@ export default class RemoteSync {
 
     }
 
+    static async pull(){
+
+        // Check authentication
+        
+        const authContext = AuthContext.getInstance();
+        if (!authContext.isAuthenticated()) {
+            throw new Error("User is not authenticated");
+        }
+
+        // Get latest commit
+
+        const repoContext = RepositoryContext.getInstance();
+        const directory = repoContext.getCurrentRepositoryPath();
+
+        const commitHistory = await EngineAPI.getCommitHistory(repoContext.getCurrentRepositoryPath() || "");
+
+        // Get zipped file from server
+
+        const res = await api.get(`/remote/pull/fetch/${repoContext.getCurrentRepositoryId()}?commit=${commitHistory[commitHistory.length - 1]}`);
+
+        const buffer = new Uint8Array(res.data);
+        if (buffer.length === 0) {
+            throw new Error("No data received");
+        }
+
+        await writeFile(`${directory}/repo.zip`, buffer);
+
+        // Unzip file to local repo
+
+        await EngineAPI.unzip(directory || "", `${directory}/repo.zip`);
+
+        // Update local repo to latest commit
+
+        const newCommitHistory = await EngineAPI.getCommitHistory(directory || "");
+
+        if (commitHistory[commitHistory.length - 1] == newCommitHistory[0]) {
+            return;
+        }
+
+        if (newCommitHistory.length > 0) {
+            await EngineAPI.checkout(directory || "", newCommitHistory[0]);
+        }
+
+    }
+
 }
