@@ -15,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@fabianlars/tauri-plugin-oauth": "^2.0.0",
+    "@iconify/svelte": "^5.0.1",
     "@tailwindcss/vite": "^4.1.12",
     "@tauri-apps/api": "^2.8.0",
     "@tauri-apps/plugin-dialog": "^2.3.3",
