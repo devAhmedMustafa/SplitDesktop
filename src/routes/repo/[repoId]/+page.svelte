@@ -1,6 +1,7 @@
-<script lang="ts">
 
-    import {page} from "$app/stores";
+<script lang="ts">
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import PublishButton from "$lib/features/remote/link/PublishButton.svelte";
     import Publisher from "$lib/features/remote/link/Publisher";
     import PullButton from "$lib/features/remote/sync/PullButton.svelte";
@@ -10,30 +11,35 @@
     import RepositoryStore from "$lib/features/repos/store/RepositoryStore";
     import RepositoryContext from "$lib/features/repos/store/RepositroyContext";
     import { onMount } from "svelte";
+    import Icon from '@iconify/svelte';
 
     $: repoId = $page.params.repoId;
     $: isPublished = false;
 
-    onMount(async ()=>{
+    function goHome() {
+        goto('/');
+    }
 
+    onMount(async ()=>{
         if (!repoId){
             throw new Error("repoId is undefined");
         }
-
         if (!RepositoryStore.getInstance().hasRepository(repoId)){
             throw new Error(`Repository with id ${repoId} not found`);
         }
-
         RepositoryContext.getInstance().setRepository(repoId!);
-        
         isPublished = await Publisher.isPublished(repoId);
     })
-
 </script>
+
 
 
 <main class="repo-main">
     <section class="repo-panel">
+        <button class="back-home-btn" on:click={goHome} title="Back to Home">
+            <Icon icon="mdi:home-outline" width="22" height="22" style="vertical-align:middle;margin-right:0.5em;" />
+            Home
+        </button>
         <header class="repo-header">
             <h1>Repository</h1>
             <h3>{repoId}</h3>
@@ -123,5 +129,26 @@
     }
     .repo-actions :global(button:hover) {
         color: #e6e6f0;
+    }
+    .back-home-btn {
+        background: #23243a;
+        color: #b7aaff;
+        font-size: 1rem;
+        font-weight: 600;
+        border: 1.5px solid #2d2e4a;
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0.6rem 1.1rem;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        transition: background 0.2s, color 0.2s, border 0.2s;
+        outline: none;
+    }
+    .back-home-btn:hover {
+        background: #2a225a;
+        color: #fff;
+        border-color: #7c3aed;
     }
 </style>
