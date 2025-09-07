@@ -7,16 +7,25 @@
   import { onMount } from "svelte";
   import Icon from '@iconify/svelte';
 
+
+  $: repoIds = repoStore.listRepositoriesIds();
+
   const repoStore = RepositoryStore.getInstance();
 
   onMount(()=>{
-  const authContext = AuthContext.getInstance();
+    const authContext = AuthContext.getInstance();
 
-  if (!authContext.isAuthenticated()){
-    goto('/auth');
-  }
+    if (!authContext.isAuthenticated()){
+      goto('/auth');
+    }
 
   })
+
+  let search = '';
+
+  function handleSearchClick(){
+    goto(`/search?q=${encodeURIComponent(search)}&type=users`);
+  }
 
 </script>
 
@@ -25,9 +34,9 @@
   <nav class="split-nav">
     <h2>Repositories</h2>
     <div class="split-nav-list">
-      {#if repoStore.listRepositories().length > 0}
+      {#if repoIds.length > 0}
         <ul>
-          {#each repoStore.listRepositoriesIds() as repo}
+          {#each repoIds as repo}
             <li>
               <a href={`/repo/${repo}`}>{repoStore.getRepositoryPath(repo)}</a>
             </li>
@@ -39,13 +48,32 @@
     </div>
   </nav>
   <main class="split-main">
-    <div class="split-actions">
-      <SelectPath onPathSelected={(path) => { repoStore.createRepository(path); }}>
-        <Icon icon="mdi:plus" width="22" height="22" style="vertical-align:middle; color: #fff; background: #7c3aed; border-radius: 50%; padding: 2px;" />
-      </SelectPath>
-      <SelectPath onPathSelected={(path) => { repoStore.addRepository(path); }}>
-        <Icon icon="mdi:folder-outline" width="22" height="22" style="vertical-align:middle; color: #fff; background: #a78bfa; border-radius: 6px; padding: 2px;" />
-      </SelectPath>
+    <div class="main-content-col">
+
+      <div class="main-search-bar">
+
+        <input
+          class="repo-search"
+          type="text"
+          placeholder="Search ..."
+          bind:value={search}
+          autocomplete="off"
+        />
+
+        <button class="repo-search-button" on:click={handleSearchClick} title="Search">
+          <Icon icon="mdi:magnify" width="22" height="22" />
+        </button>
+
+      </div>
+
+      <div class="split-actions">
+        <SelectPath onPathSelected={(path) => { repoStore.createRepository(path); }}>
+          <Icon icon="mdi:plus" width="22" height="22" style="vertical-align:middle; color: #fff; background: #7c3aed; border-radius: 50%; padding: 2px;" />
+        </SelectPath>
+        <SelectPath onPathSelected={(path) => { repoStore.addRepository(path); }}>
+          <Icon icon="mdi:folder-outline" width="22" height="22" style="vertical-align:middle; color: #fff; background: #a78bfa; border-radius: 6px; padding: 2px;" />
+        </SelectPath>
+      </div>
     </div>
   </main>
 </div>
@@ -81,6 +109,50 @@
     margin: 0 0 0.5rem 0;
     letter-spacing: 0.01em;
   }
+  .main-search-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .repo-search {
+    width: 100%;
+    max-width: 350px;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid #2d2e4a;
+    background: #191a22;
+    color: #e6e6f0;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+    box-sizing: border-box;
+  }
+
+  .repo-search:focus {
+    border: 1.5px solid #7c3aed;
+    background: #23243a;
+  }
+
+  .repo-search-button {
+    background: #7c3aed;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.55rem 0.9rem;
+    margin-left: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(80, 60, 180, 0.10);
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .split-nav-list {
     flex: 1;
     overflow-y: auto;
@@ -101,18 +173,41 @@
   .split-nav li:hover {
     background: #2a225a;
   }
-  .split-nav a {
-    color: #b7aaff;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: color 0.2s;
-    display: block;
-    width: 100%;
+  .split-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
-  .split-nav a:hover {
-    color: #e6e6f0;
-    text-decoration: underline;
+  .main-content-col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    flex: 1;
+  }
+  .main-search-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 2.5rem 0 2.5rem 0;
+  }
+  .split-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    background: #23243a;
+    padding: 2.5rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px 0 rgba(80, 60, 180, 0.10);
+    min-width: 320px;
+    max-width: 400px;
+    margin: 0 auto;
   }
   .split-empty {
     color: #7c7ca6;
