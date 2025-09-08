@@ -4,8 +4,6 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-use tauri_plugin_oauth;
-
 #[tauri::command]
 fn scm_init(root_path: &str) {
     let c_root_path = std::ffi::CString::new(root_path).unwrap();
@@ -95,7 +93,6 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_oauth::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             greet,

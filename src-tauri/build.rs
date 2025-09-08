@@ -1,7 +1,11 @@
 fn main() {
     if cfg!(target_os = "windows") {
         // println!("cargo:rustc-link-arg=/NODEFAULTLIB:LIBCMTD");
-        println!("cargo:rustc-link-lib=msvcrtd");
+        if cfg!(debug_assertions) {
+            println!("cargo:rustc-link-lib=msvcrtd");
+        } else {
+            println!("cargo:rustc-link-lib=msvcrt");
+        }
 
         println!("cargo:rustc-link-search=native=static");
         println!("cargo:rustc-link-lib=static=scm_bindings");
