@@ -1,6 +1,6 @@
 fn main() {
     if cfg!(target_os = "windows") {
-        println!("cargo:rustc-link-arg=/NODEFAULTLIB:LIBCMTD");
+        // println!("cargo:rustc-link-arg=/NODEFAULTLIB:LIBCMTD");
         println!("cargo:rustc-link-lib=msvcrtd");
 
         println!("cargo:rustc-link-search=native=static");
